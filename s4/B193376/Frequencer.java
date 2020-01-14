@@ -24,7 +24,10 @@ public class Frequencer implements FrequencerInterface{
     public int frequency() {
 	int targetLength = myTarget.length;
 	int spaceLength = mySpace.length;
+  if(targetLength==0){return -1;}
+  if(spaceLength==0){return 0;}
 	int count = 0;
+//mySpaceにmyTargetのbyte列をいくつ含むかカウントする
 	for(int start = 0; start<spaceLength; start++) { // Is it OK?
 	    boolean abort = false;
 	    for(int i = 0; i<targetLength; i++) {
@@ -36,9 +39,20 @@ public class Frequencer implements FrequencerInterface{
     }
 
     // I know that here is a potential problem in the declaration.
-    public int subByteFrequency(int start, int length) { 
+    public int subByteFrequency(int start, int end) { 
+	    Frequencer subFrequency = new Frequencer();
+      subFrequency.setSpace(mySpace);
+      int count=0;
+      for(int i=start;i<end;i++){
+      
+        byte[] TARGET = new byte[1];
+        TARGET[0] = myTarget[i];
+        subFrequency.setTarget(TARGET);
+        int tmp=subFrequency.frequency();
+        if(tmp>count){count=tmp;}
+      }
 	// Not yet, but it is not currently used by anyone.
-	return -1;
+	return count;
     }
 
     public static void main(String[] args) {

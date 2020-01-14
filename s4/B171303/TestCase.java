@@ -2,7 +2,7 @@ package s4.B171303; // Please modify to s4.Bnnnnnn, where nnnnnn is your student
 import java.lang.*;
 import s4.specification.*;
 
-/*
+
 interface FrequencerInterface {     // This interface provides the design for frequency counter.
     void setTarget(byte[]  target); // set the data to search.
     void setSpace(byte[]  space);  // set the data to be searched target from.
@@ -13,9 +13,8 @@ interface FrequencerInterface {     // This interface provides the design for fr
     // get the frequency of subByte of taget, i.e target[start], taget[start+1], ... , target[end-1].
     // For the incorrect value of START or END, the behavior is undefined.
 }
-*/
 
-/*
+
 package s4.specification;
 public interface InformationEstimatorInterface{
     void setTarget(byte target[]); // set the data for computing the information quantities
@@ -26,7 +25,6 @@ public interface InformationEstimatorInterface{
 // Note that this happens only when the space is unreasonably large. We will encounter other problem anyway.
 // Otherwise, estimation of information quantity, 
 }                        
-*/
 
 
 public class TestCase {
@@ -47,7 +45,7 @@ public class TestCase {
 	}
 
 	try {
-	    InformationEstimatorInterface myObject;
+	    InformationEstimator myObject;
 	    double value;
 	    System.out.println("checking s4.B171303.InformationEstimator");
 	    myObject = new s4.B171303.InformationEstimator();
@@ -68,7 +66,38 @@ public class TestCase {
 	catch(Exception e) {
 	    System.out.println("Exception occurred: STOP");
 	}
+    //blackboxtest
+    try {
+	    FrequencerInterface myObject;
+    	int frequency();
+	    System.out.println("checking s4.B171303.FrequencerInterface");
+	    myObject = new s4.B171303.FrequencerInterface();
+    	if(myObject.frequency()==-1) {
+    		System.out.println("WRONG"); 
+    	}else {
+    		System.out.println("OK");
+    	}
+	}
+	catch(Exception e) {
+	    System.out.println("Exception occurred: STOP");
+	}
+    //whiteboxtest
+    try {
+	    FrequencerInterface myObject;
+    	System.out.println("checking s4.B171303.FrequencerInterface");
+	    myObject = new s4.B171303.FrequencerInterface();
+    	int start = 1;
+    	int end = 10;
+    	if(subByteFrequency(start, end)==-1) {
+    		System.out.println("WRONG"); 
+    	}else {
+    		System.out.println("OK");
+    	}
+	}
+	catch(Exception e) {
+	    System.out.println("Exception occurred: STOP");
+	}
 
     }
-}	    
-	    
+}	 
+   	    

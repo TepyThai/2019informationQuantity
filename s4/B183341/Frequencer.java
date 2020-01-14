@@ -22,7 +22,7 @@ public class Frequencer implements FrequencerInterface{
     public void setTarget(byte [] target) { myTarget = target;}
     public void setSpace(byte []space) { mySpace = space; }
     public int frequency() {
-	int targetLength = myTarget.length;
+   	int targetLength = myTarget.length;
 	int spaceLength = mySpace.length;
 	int count = 0;
 	for(int start = 0; start<spaceLength; start++) { // Is it OK?
