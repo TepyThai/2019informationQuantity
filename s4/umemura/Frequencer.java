@@ -102,7 +102,7 @@ public class Frequencer implements FrequencerInterface {
 
         int first = subByteStartIndex(start, end);
         int last1 = subByteEndIndex(start, end);
-        System.out.println(first + " " + last1);
+        // System.out.println(first + " " + last1);
         return last1 - first;
     }
     // 変更してはいけないコードはここまで。
