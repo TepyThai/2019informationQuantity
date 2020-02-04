@@ -100,6 +100,7 @@ public class Frequencer implements FrequencerInterface {
          * if(abort == false) { count++; } }
          */
 
+        myTargetStr = myTargetStr.substring(start, end);
         int first = subByteStartIndex(start, end);
         int last1 = subByteEndIndex(start, end);
         // System.out.println(first + " " + last1);
@@ -125,7 +126,6 @@ public class Frequencer implements FrequencerInterface {
         // ここにコードを記述せよ。
         //
         int startMatchIndex = -1;
-
         // for (int i = 0; i < suffixStrArray.length; i++) {
         // if (targetCompare(suffixArray[i], start, end) == 0 ||
         // targetCompare(suffixArray[i], start, end) == 1) {
@@ -160,7 +160,6 @@ public class Frequencer implements FrequencerInterface {
         // if target_start_end is"i", it will return 9 for "Hi Ho Hi Ho".
         //
         // ここにコードを記述せよ
-        //
 
         int endMatchIndex = -1;
         for (int i = 0; i < suffixStrArray.size(); i++) {

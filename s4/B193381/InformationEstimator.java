@@ -1,5 +1,10 @@
 package s4.B193381; // Please modify to s4.Bnnnnnn, where nnnnnn is your student ID. 
+
 import java.lang.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import s4.specification.*;
 
 /* What is imported from s4.specification
@@ -15,95 +20,108 @@ public interface InformationEstimatorInterface{
 }                        
 */
 
-public class InformationEstimator implements InformationEstimatorInterface{
-    // Code to tet, *warning: This code condtains intentional problem*
-    byte [] myTarget; // data to compute its information quantity
-    byte [] mySpace;  // Sample space to compute the probability
-    FrequencerInterface myFrequencer;  // Object for counting frequency
+public class InformationEstimator implements InformationEstimatorInterface {
+	// Code to tet, *warning: This code condtains intentional problem*
+	byte[] myTarget; // data to compute its information quantity
+	byte[] mySpace; // Sample space to compute the probability
+	FrequencerInterface myFrequencer; // Object for counting frequency
 
-    byte [] subBytes(byte [] x, int start, int end) {
-	// corresponding to substring of String for  byte[] ,
-	// It is not implement in class library because internal structure of byte[] requires copy.
-	byte [] result = new byte[end - start];
-	for(int i = 0; i<end - start; i++) { result[i] = x[start + i]; };
-	return result;
-    }
+	ArrayList<HashMap<String, Double>> lq = new ArrayList<>();
 
-    // IQ: information quantity for a count,  -log2(count/sizeof(space))
-    double iq(int freq) {
-	return  - Math.log10((double) freq / (double) mySpace.length)/ Math.log10((double) 2.0);
-    }
-
-    public void setTarget(byte [] target) { myTarget = target;}
-    public void setSpace(byte []space) { 
-	myFrequencer = new Frequencer();
-	mySpace = space; myFrequencer.setSpace(space); 
-    }
-
-    public double estimation(){
-	boolean [] partition = new boolean[myTarget.length+1];
-	int np;
-	np = 1<<(myTarget.length-1);
-	// System.out.println("np="+np+" length="+myTarget.length);
-	double value = Double.MAX_VALUE; // value = mininimum of each "value1".
-
-	for(int p=0; p<np; p++) { // There are 2^(n-1) kinds of partitions.
-	    // binary representation of p forms partition.
-	    // for partition {"ab" "cde" "fg"}
-	    // a b c d e f g   : myTarget
-	    // T F T F F T F T : partition:
-	    partition[0] = true; // I know that this is not needed, but..
-	    for(int i=0; i<myTarget.length -1;i++) {
-		partition[i+1] = (0 !=((1<<i) & p));
-	    }
-	    partition[myTarget.length] = true;
-
-	    // Compute Information Quantity for the partition, in "value1"
-	    // value1 = IQ(#"ab")+IQ(#"cde")+IQ(#"fg") for the above example
-            double value1 = (double) 0.0;
-	    int end = 0;;
-	    int start = end;
-	    while(start<myTarget.length) {
-		// System.out.write(myTarget[end]);
-		end++;;
-		while(partition[end] == false) { 
-		    // System.out.write(myTarget[end]);
-		    end++;
+	byte[] subBytes(byte[] x, int start, int end) {
+		// corresponding to substring of String for byte[] ,
+		// It is not implement in class library because internal structure of byte[]
+		// requires copy.
+		byte[] result = new byte[end - start];
+		for (int i = 0; i < end - start; i++) {
+			result[i] = x[start + i];
 		}
-		// System.out.print("("+start+","+end+")");
-		myFrequencer.setTarget(subBytes(myTarget, start, end));
-		value1 = value1 + iq(myFrequencer.frequency());
-		start = end;
-	    }
-	    // System.out.println(" "+ value1);
-
-	    // Get the minimal value in "value"
-	    if(value1 < value) value = value1;
+		;
+		return result;
 	}
-	return value;
-    }
 
-    public static void main(String[] args) {
-	InformationEstimator myObject;
-	double value;
-	myObject = new InformationEstimator();
-	myObject.setSpace("3210321001230123".getBytes());
-	myObject.setTarget("0".getBytes());
-	value = myObject.estimation();
-	System.out.println(">0 "+value);
-	myObject.setTarget("01".getBytes());
-	value = myObject.estimation();
-	System.out.println(">01 "+value);
-	myObject.setTarget("0123".getBytes());
-	value = myObject.estimation();
-	System.out.println(">0123 "+value);
-	myObject.setTarget("00".getBytes());
-	value = myObject.estimation();
-	System.out.println(">00 "+value);
-    }
+	// IQ: information quantity for a count, -log2(count/sizeof(space))
+	double iq(int freq) {
+		return -Math.log10((double) freq / (double) mySpace.length) / Math.log10((double) 2.0);
+	}
+
+	public void setTarget(byte[] target) {
+		myTarget = target;
+	}
+
+	public void setSpace(byte[] space) {
+		myFrequencer = new Frequencer();
+		mySpace = space;
+		myFrequencer.setSpace(space);
+	}
+
+	public double estimation() {
+		return minIq(myTarget);
+	}
+
+	public double minIq(byte[] target) {
+		if (target.length == 0) {
+			return 0;
+		}
+		if (target.length == 1) {
+			return memoIq(target);
+		}
+
+		double value = Double.MAX_VALUE;
+		int end = target.length;
+		int start = 0;
+		for (int partion = 1; partion <= end; partion++) {
+			byte[] target0 = subBytes(target, start, partion);
+			double value1 = memoIq(target0);
+			byte[] target1 = subBytes(target, partion, end);
+			value1 += minIq(target1);
+			if (value > value1) {
+				value = value1;
+			}
+		}
+
+		return value;
+	}
+
+	public double memoIq(byte[] target) {
+		double iq = 0.0;
+		boolean notFound = true;
+		String targetStr = new String(target);
+		for (HashMap<String, Double> l : lq) {
+			if (l.containsKey(targetStr)) {
+				iq = l.get(targetStr);
+				notFound = false;
+				break;
+			} else {
+				notFound = true;
+			}
+		}
+		if (notFound) {
+			myFrequencer.setTarget(target);
+			iq = iq(myFrequencer.frequency());
+			HashMap<String, Double> item = new HashMap<String, Double>();
+			item.put(targetStr, iq);
+			lq.add(item);
+		}
+		return iq;
+	}
+
+	public static void main(String[] args) {
+		InformationEstimator myObject;
+		double value;
+		myObject = new InformationEstimator();
+		myObject.setSpace("3210321001230123".getBytes());
+		myObject.setTarget("0".getBytes());
+		value = myObject.estimation();
+		System.out.println(">0 " + value);
+		myObject.setTarget("01".getBytes());
+		value = myObject.estimation();
+		System.out.println(">01 " + value);
+		myObject.setTarget("0123".getBytes());
+		value = myObject.estimation();
+		System.out.println(">0123 " + value);
+		myObject.setTarget("00".getBytes());
+		value = myObject.estimation();
+		System.out.println(">00 " + value);
+	}
 }
-				  
-			       
-
-	
-    
